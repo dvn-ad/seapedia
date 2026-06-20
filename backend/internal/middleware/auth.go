@@ -20,14 +20,10 @@ func AuthMiddleware() gin.HandlerFunc{
 			return 
 		}
 
-		parts:=strings.Split(authHeader," ")
-		if len(parts)!=2 || parts[0]!="Bearer"{
-			c.JSON(http.StatusUnauthorized,gin.H{"error":"Authorization header must be Bearer {token}"})
-			c.Abort()
-			return
+		tokenStr:=authHeader
+		if strings.HasPrefix(authHeader,"Bearer "){
+			tokenStr=strings.TrimPrefix(authHeader,"Bearer ")
 		}
-
-		tokenStr:=parts[1]
 		claims:=&handlers.Claims{}
 
 		token,err:=jwt.ParseWithClaims(tokenStr,claims,func(token *jwt.Token)(interface{},error){

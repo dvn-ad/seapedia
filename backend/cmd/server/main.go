@@ -33,7 +33,8 @@ func main(){
 
 	r.POST("/api/auth/register",handlers.Register)
 	r.POST("/api/auth/login",handlers.Login)
-
+	r.GET("/api/reviews",handlers.GetReview)
+	r.POST("/api/reviews",handlers.SubmitReview)
 
 	protected:=r.Group("/api")
 	protected.Use(middleware.AuthMiddleware())

@@ -26,6 +26,34 @@ definitions:
     - roles
     - username
     type: object
+  handlers.SubmitReviewInput:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      reviewer_name:
+        type: string
+    required:
+    - comment
+    - rating
+    - reviewer_name
+    type: object
+  models.AppReview:
+    properties:
+      comment:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      rating:
+        type: integer
+      reviewer_name:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -121,6 +149,49 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /reviews:
+    get:
+      description: Get a list of all public application and website feedback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of reviews
+          schema:
+            items:
+              $ref: '#/definitions/models.AppReview'
+            type: array
+      summary: List application reviews
+      tags:
+      - Reviews
+    post:
+      consumes:
+      - application/json
+      description: Submit feedback about the website or application experience. Rating
+        must be between 1 and 5.
+      parameters:
+      - description: Review Payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SubmitReviewInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Review submitted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Submit an application review
+      tags:
+      - Reviews
 securityDefinitions:
   BearerAuth:
     in: header

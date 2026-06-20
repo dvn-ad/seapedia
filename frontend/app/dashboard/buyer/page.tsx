@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import Link from "next/link";
+import ProfileSummary from "../../../components/ProfileSummary";
 
 export default function BuyerDashboard() {
   const { activeRole, logout, roles } = useAuth();
@@ -26,7 +27,7 @@ export default function BuyerDashboard() {
           )}
           <button
             onClick={logout}
-            className="w-full text-left rounded-lg px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+            className="w-full text-left rounded-lg px-4 py-2.5 text-sm font-semibold text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20"
           >
             Sign Out
           </button>
@@ -43,6 +44,9 @@ export default function BuyerDashboard() {
             Active Role: <span className="font-bold text-indigo-650 dark:text-indigo-400">{activeRole}</span>
           </p>
         </header>
+
+        {/* Global profile summary block */}
+        <ProfileSummary />
 
         {/* Dashboard Panels Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

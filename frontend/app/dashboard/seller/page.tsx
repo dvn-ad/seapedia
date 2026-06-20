@@ -3,6 +3,7 @@
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import Link from "next/link";
+import ProfileSummary from "../../../components/ProfileSummary";
 
 export default function SellerDashboard() {
   const { activeRole, logout, roles } = useAuth();
@@ -39,6 +40,9 @@ export default function SellerDashboard() {
             Active Role: <span className="font-bold text-indigo-650 dark:text-indigo-400">{activeRole}</span>
           </p>
         </header>
+
+        {/* Global profile summary block */}
+        <ProfileSummary />
 
         {/* Dashboard Panels Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

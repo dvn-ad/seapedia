@@ -1,0 +1,129 @@
+basePath: /api
+definitions:
+  handlers.LoginInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.RegisterInput:
+    properties:
+      password:
+        type: string
+      roles:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      username:
+        type: string
+    required:
+    - password
+    - roles
+    - username
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Interactive API documentation for the SEAPEDIA marketplace system.
+  title: SEAPEDIA API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in user and return JWT token alongside registered roles
+      parameters:
+      - description: Login Payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns JWT Token & Role list
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid credentials schema
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/profile:
+    get:
+      description: Fetches current credentials using authentication token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile details
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get logged-in user profile
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user profile with selected roles (Admin, Seller,
+        Buyer, Driver)
+      parameters:
+      - description: Registration Payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid role or request data
+          schema:
+            additionalProperties: true
+            type: object
+        "499":
+          description: Username already exists
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

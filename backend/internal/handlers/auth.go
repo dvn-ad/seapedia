@@ -30,6 +30,17 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Register handler
+    // @Summary Register a new user
+    // @Description Creates a new user profile with selected roles (Admin, Seller, Buyer, Driver)
+    // @Tags Auth
+    // @Accept json
+    // @Produce json
+    // @Param body body RegisterInput true "Registration Payload"
+    // @Success 201 {object} map[string]interface{} "User registered successfully"
+    // @Failure 400 {object} map[string]interface{} "Invalid role or request data"
+    // @Failure 499 {object} map[string]interface{} "Username already exists"
+    // @Router /auth/register [post]
 func Register(c *gin.Context){
 	var input RegisterInput
 	if err:=c.ShouldBindJSON(&input);err!=nil{
@@ -68,6 +79,17 @@ func Register(c *gin.Context){
 	
 }
 
+// Login handler
+    // @Summary Login user
+    // @Description Log in user and return JWT token alongside registered roles
+    // @Tags Auth
+    // @Accept json
+    // @Produce json
+    // @Param body body LoginInput true "Login Payload"
+    // @Success 200 {object} map[string]interface{} "Returns JWT Token & Role list"
+    // @Failure 400 {object} map[string]interface{} "Invalid credentials schema"
+    // @Failure 401 {object} map[string]interface{} "Invalid credentials"
+    // @Router /auth/login [post]
 func Login(c *gin.Context){
 	var input LoginInput
 	if err:=c.ShouldBindJSON(&input);err!=nil{
@@ -112,6 +134,15 @@ func Login(c *gin.Context){
 	})
 }
 
+// GetProfile returns current user information
+    // @Summary Get logged-in user profile
+    // @Description Fetches current credentials using authentication token
+    // @Tags Auth
+    // @Produce json
+    // @Security BearerAuth
+    // @Success 200 {object} map[string]interface{} "User profile details"
+    // @Failure 401 {object} map[string]interface{} "Unauthorized"
+    // @Router /auth/profile [get]
 func GetProfile(c *gin.Context){
 	userID, exists:=c.Get("user_id")
 	if !exists{

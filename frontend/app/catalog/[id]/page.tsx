@@ -1,47 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-interface DummyProduct {
+interface Product {
   id: number;
+  store_id: number;
+  store_name: string;
   name: string;
   price: number;
-  store: string;
   description: string;
+  stock: number;
 }
-
-const DUMMY_PRODUCTS: DummyProduct[] = [
-  {
-    id: 1,
-    name: "Submarine Anchor Heavy Duty",
-    price: 1500000,
-    store: "DeepSea Naval Works",
-    description: "Premium forged steel anchor designed to withstand extreme deep sea pressures.",
-  },
-  {
-    id: 2,
-    name: "Neoprene Wet Suit 5mm",
-    price: 850000,
-    store: "Aquatic Gears Ltd",
-    description: "High-insulation thermal wet suit ideal for cold reef exploration and scuba diving.",
-  },
-  {
-    id: 3,
-    name: "Titanium Diving Knife",
-    price: 320000,
-    store: "Aquatic Gears Ltd",
-    description: "Corrosion-resistant titanium blade with a serrated edge and quick-release sheath.",
-  },
-];
 
 export default function ProductDetailPage() {
   const params = useParams();
   const idStr = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const productId = parseInt(idStr || "1");
 
-  const product = DUMMY_PRODUCTS.find((p) => p.id === productId) || DUMMY_PRODUCTS[0];
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (productId) {
+      fetch(`http://localhost:8080/api/catalog/${productId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Product not found");
+          return res.json();
+        })
+        .then((data) => setProduct(data))
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  }, [productId]);
+
+  if (loading) return <div className="text-center py-20 text-zinc-500">Loading product details...</div>;
+  if (error || !product) {
+    return (
+      <div className="text-center py-20 text-red-500">
+        <p className="mb-4">{error || "Product not found"}</p>
+        <Link href="/catalog" className="text-indigo-650 hover:underline font-semibold">Back to Catalog</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -62,9 +65,12 @@ export default function ProductDetailPage() {
       {/* Main Container */}
       <main className="mx-auto w-full max-w-3xl px-6 py-16">
         <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-md dark:border-zinc-850 dark:bg-zinc-900">
-          <div className="mb-4">
+          <div className="mb-4 flex gap-2">
             <span className="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
-              Sold by: {product.store}
+              Sold by: {product.store_name || `Store #${product.store_id}`}
+            </span>
+            <span className="inline-flex items-center rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              Stock: {product.stock} items left
             </span>
           </div>
 
@@ -81,12 +87,12 @@ export default function ProductDetailPage() {
               Product Description
             </h3>
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              {product.description}
+              {product.description || "No description provided by the seller."}
             </p>
           </div>
 
           <div className="mt-8 rounded-xl bg-zinc-50 p-4 border border-zinc-200 text-center dark:bg-zinc-950 dark:border-zinc-850">
-            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-450">
+            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-455">
               Guests cannot buy items. Please{" "}
               <Link href="/login" className="text-indigo-600 font-bold hover:underline">
                 Sign In

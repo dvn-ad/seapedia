@@ -38,11 +38,11 @@ type Store struct {
 }
 
 type Product struct {
-	ID          uint    `gorm:"primaryKey" json:"id"`
-	ProductID   uint    `gorm:"uniqueIndex;not null" json:"product_id"`
-	Name        string  `gorm:"uniqueIndex;not null;size:100" json:"name"`
-	Description string  `gorm:"type:text" json:"description"`
-	Price       float64 `gorm:"not null" json:"price"`
-	Stock       int     `gorm:"not null;default:0" json:"stock"`
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	StoreID     uint      `gorm:"uniqueIndex;not null" json:"product_id"`
+	Name        string    `gorm:"uniqueIndex;not null;size:100" json:"name"`
+	Description string    `gorm:"type:text" json:"description"`
+	Price       float64   `gorm:"not null" json:"price"`
+	Stock       int       `gorm:"not null;default:0" json:"stock"`
 	CreatedAt   time.Time `json:"created_at"`
 }

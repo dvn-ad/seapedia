@@ -19,7 +19,18 @@ type ProductInput struct {
 	Price       float64 `json:"price" binding:"required,gt=0"`
 	Stock       *int     `json:"stock" binding:"required,gte=0"`
 }
-
+// CreateStore handles registering a new Seller store profile
+// @Summary Create a Store profile
+// @Description Register a store with a unique name. Active role must be 'Seller'.
+// @Tags Store
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body StoreInput true "Store Details"
+// @Success 201 {object} models.Store
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 409 {object} map[string]interface{} "Store name already exists or user already owns a store" 
+// @Router /seller/store [post]
 func CreateStore(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	var input StoreInput
@@ -45,6 +56,15 @@ func CreateStore(c *gin.Context) {
 	c.JSON(http.StatusCreated, store)
 }
 
+// CreateProduct adds a new item to the seller's store
+// @Summary Add a new product
+// @Tags Store Products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body ProductInput true "Product details"
+// @Success 201 {object} models.Product
+// @Router /seller/products [post]
 func CreateProduct(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	var store models.Store
@@ -74,6 +94,15 @@ func CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
+// GetSellerProducts lists products owned by the active seller
+// @Summary List seller products
+// @Tags Store Products
+// @Produce json
+// @Security BearerAuth
+// @Param        X-Active-Role  header  string  true  "Active user role should be Buyer"
+// @Param        id             path    int     true  "Product ID"
+// @Success 200 {array} models.Product
+// @Router /seller/products [get]
 func GetSellerProduct(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 
@@ -87,6 +116,14 @@ func GetSellerProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
+// UpdateProduct updates product details
+// @Summary Update product details
+// @Tags Store Products
+// @Security BearerAuth
+// @Param id path int true "Product ID"
+// @Param body body ProductInput true "Updated product payload"
+// @Success 200 {object} models.Product
+// @Router /seller/products/{id} [put]
 func UpdateProduct (c *gin.Context){
 	userID,_:=c.Get("user_id")
 	// productID,_:=c.Get("product_id")
@@ -126,7 +163,13 @@ func UpdateProduct (c *gin.Context){
 	c.JSON(http.StatusOK,product)
 }
 
-
+// DeleteProduct deletes an inventory item
+// @Summary Delete product
+// @Tags Store Products
+// @Security BearerAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /seller/products/{id} [delete]
 func DeleteProduct (c *gin.Context){
 	userID,_:=c.Get("user_id")
 	// productID,_:=c.Get("product_id")
@@ -152,13 +195,25 @@ func DeleteProduct (c *gin.Context){
 	config.DB.Delete(&product)
 	c.JSON(http.StatusOK,gin.H{"message":"Product deleted successfully"})
 }
-
+// GetCatalog returns all store products (Public Catalog)
+// @Summary View public catalog
+// @Tags Public Catalog
+// @Produce json
+// @Success 200 {array} models.Product
+// @Router /catalog [get]
 func GetCatalog (c *gin.Context){
 	var products []models.Product
 	config.DB.Find(&products)
 	c.JSON(http.StatusOK,products)
 }
 
+// GetCatalogDetail returns single product details
+// @Summary View product details
+// @Tags Public Catalog
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} models.Product
+// @Router /catalog/{id} [get]
 func GetCatalogDetail(c *gin.Context){
 	productID,_:=strconv.Atoi(c.Param("id"))
 

@@ -10,6 +10,22 @@ definitions:
     - password
     - username
     type: object
+  handlers.ProductInput:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - price
+    - stock
+    type: object
   handlers.RegisterInput:
     properties:
       password:
@@ -25,6 +41,15 @@ definitions:
     - password
     - roles
     - username
+    type: object
+  handlers.StoreInput:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
     type: object
   handlers.SubmitReviewInput:
     properties:
@@ -53,6 +78,40 @@ definitions:
         type: integer
       reviewer_name:
         type: string
+    type: object
+  models.Product:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      store_id:
+        type: integer
+    type: object
+  models.Store:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      user_id:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -149,6 +208,38 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /catalog:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+      summary: View public catalog
+      tags:
+      - Public Catalog
+  /catalog/{id}:
+    get:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+      summary: View product details
+      tags:
+      - Public Catalog
   /reviews:
     get:
       description: Get a list of all public application and website feedback
@@ -192,6 +283,131 @@ paths:
       summary: Submit an application review
       tags:
       - Reviews
+  /seller/products:
+    get:
+      parameters:
+      - description: Active user role should be Buyer
+        in: header
+        name: X-Active-Role
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List seller products
+      tags:
+      - Store Products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ProductInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+      security:
+      - BearerAuth: []
+      summary: Add a new product
+      tags:
+      - Store Products
+  /seller/products/{id}:
+    delete:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - Store Products
+    put:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated product payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ProductInput'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+      security:
+      - BearerAuth: []
+      summary: Update product details
+      tags:
+      - Store Products
+  /seller/store:
+    post:
+      consumes:
+      - application/json
+      description: Register a store with a unique name. Active role must be 'Seller'.
+      parameters:
+      - description: Store Details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.StoreInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Store'
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Store name already exists or user already owns a store
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a Store profile
+      tags:
+      - Store
 securityDefinitions:
   BearerAuth:
     in: header

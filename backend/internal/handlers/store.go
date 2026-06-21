@@ -89,22 +89,30 @@ func GetSellerProduct(c *gin.Context) {
 
 func UpdateProduct (c *gin.Context){
 	userID,_:=c.Get("user_id")
-	productID,_:=c.Get("product_id")
-
+	// productID,_:=c.Get("product_id")
+	productID,err:=strconv.Atoi(c.Param("id"));
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"Invalid product ID"})
+		return
+	}
+	
 	var product models.Product
-	if err:=config.DB.First(&product,productID).Error;err!=nil{
+	err=config.DB.First(&product,productID).Error;
+	if err!=nil{
 		c.JSON(http.StatusNotFound,gin.H{"error":"Product not found"})
 		return
 	}
 
 	var store models.Store
-	if err:=config.DB.Where("id=? AND user_id=?",product.StoreID ,userID).First(&store).Error;err!=nil{
+	err=config.DB.Where("id=? AND user_id=?",product.StoreID ,userID).First(&store).Error;
+	if err!=nil{
 		c.JSON(http.StatusForbidden,gin.H{"error":"Unauthorized to update this product"})
 		return
 	}
 	
 	var input ProductInput
-	if err:=c.ShouldBindJSON(&input);err!=nil{
+	err=c.ShouldBindJSON(&input);
+	if err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
 		return
 	}
@@ -121,16 +129,23 @@ func UpdateProduct (c *gin.Context){
 
 func DeleteProduct (c *gin.Context){
 	userID,_:=c.Get("user_id")
-	productID,_:=c.Get("product_id")
+	// productID,_:=c.Get("product_id")
+	productID,err:=strconv.Atoi(c.Param("id"));
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"Invalid product ID"})
+		return
+	}
 
 	var product models.Product
-	if err:=config.DB.Where("id=?",productID).First(&product).Error;err!=nil{
+	err=config.DB.Where("id=?",productID).First(&product).Error;
+	if err!=nil{
 		c.JSON(http.StatusNotFound,gin.H{"error":"Product not found"})
 		return
 	}
 
 	var store models.Store
-	if err:=config.DB.Where("id=? AND user_id=?",product.StoreID,userID).First(&store);err!=nil{
+	err=config.DB.Where("id=? AND user_id=?",product.StoreID,userID).First(&store).Error;
+	if err!=nil{
 		c.JSON(http.StatusForbidden,gin.H{"error":"Unauthorized to delete this product"})
 		return
 	}

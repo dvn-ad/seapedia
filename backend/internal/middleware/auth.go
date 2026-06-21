@@ -45,7 +45,7 @@ func RequireRole(allowedRole string) gin.HandlerFunc {
 	return func(c *gin.Context){
 		activeRole:=c.GetHeader("X-Active-Role")
 		if activeRole==""{
-			c.JSON(http.StatusForbidden,gin.H{"error":"X-Acive-Role header is required for dashboard actions"})
+			c.JSON(http.StatusForbidden,gin.H{"error":"X-Active-Role header is required for dashboard actions"})
 			c.Abort()
 			return 
 		}

@@ -25,6 +25,7 @@ func main(){
 	
 	r:=gin.Default()
 	r.Use(middleware.CORSMiddleware())
+
 	r.GET("/swagger/*any",ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/health",func(c*gin.Context){
 		c.JSON(200,gin.H{
@@ -36,16 +37,29 @@ func main(){
 	r.POST("/api/auth/login",handlers.Login)
 	r.GET("/api/reviews",handlers.GetReview)
 	r.POST("/api/reviews",handlers.SubmitReview)
+	r.GET("/api/catalog",handlers.GetCatalog)
+	r.GET("/api/catalog/:id",handlers.GetCatalogDetail)
 
 	protected:=r.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/auth/profile",handlers.GetProfile)
-
 		protected.GET("/buyer/dashboard-data", middleware.RequireRole("Buyer"),func(c *gin.Context){
 			c.JSON(200, gin.H{"message":"Welcome Buyer!"})
 		})
+
+		seller:=protected.Group("/seller")
+		seller.Use(middleware.RequireRole("Seller"))
+		{
+			seller.POST("/store",handlers.CreateStore)
+			seller.GET("/products",handlers.GetSellerProduct)
+			seller.POST("/products",handlers.CreateProduct)
+			seller.PUT("/products/:id",handlers.UpdateProduct)
+			seller.DELETE("/products/:id",handlers.DeleteProduct)
+		}
+
 	}
+
 
 	r.Run(":8080")
 }

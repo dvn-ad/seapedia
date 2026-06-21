@@ -61,12 +61,13 @@ func CreateProduct(c *gin.Context) {
 	}
 	stockVal:=input.Stock
 	product := models.Product{
+		StoreID: store.ID,
 		Name:        input.Name,
 		Description: input.Description,
 		Price:       input.Price,
 		Stock:       *stockVal,
 	}
-	if err := config.DB.Create(&product); err != nil {
+	if err := config.DB.Create(&product).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})
 		return
 	}

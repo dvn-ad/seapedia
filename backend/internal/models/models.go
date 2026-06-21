@@ -39,7 +39,7 @@ type Store struct {
 
 type Product struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
-	StoreID     uint      `gorm:"uniqueIndex;not null" json:"product_id"`
+	StoreID     uint      `gorm:"not null" json:"store_id"`
 	Name        string    `gorm:"uniqueIndex;not null;size:100" json:"name"`
 	Description string    `gorm:"type:text" json:"description"`
 	Price       float64   `gorm:"not null" json:"price"`

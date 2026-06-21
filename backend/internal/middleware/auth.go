@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/dvn-ad/seapedia/backend/internal/handlers"
@@ -64,16 +65,15 @@ func RequireRole(allowedRole string) gin.HandlerFunc {
 		}
 
 		userRoles:=userRolesInterface.([]string)
-		hasRole:=false
-		for _,r:=range userRoles{
-			if r==activeRole{
-				hasRole=true
-				break
-			}
-		}
+		hasRole:=slices.Contains(userRoles, activeRole)
+		// var roles []string
+		// for _,r:=range userRoles{
+		// 	roles=append(roles, r)
+		// }
 
 		if !hasRole{
 			c.JSON(http.StatusForbidden,gin.H{"error":"User does not own the active role requested"})
+			// c.JSON(http.StatusForbidden,gin.H{"error":"User does not own the active role requested","roles":roles})
 			c.Abort()
 			return
 		}

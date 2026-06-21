@@ -74,7 +74,7 @@ func Register(c *gin.Context){
 		c.JSON(http.StatusConflict,gin.H{"error":"Username already exists"})
 		return
 	}
-	c.JSON(http.StatusCreated,gin.H{"message":"User registered succesfully"})
+	c.JSON(http.StatusCreated,gin.H{"message":"User registered successfully"})
 
 	
 }

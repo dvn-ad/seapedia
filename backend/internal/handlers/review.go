@@ -40,7 +40,7 @@ func SubmitReview(c *gin.Context){
 		c.JSON(http.StatusInternalServerError,gin.H{"error":"Failed to submit review"})
 		return
 	}
-	c.JSON(http.StatusCreated,gin.H{"message":"Review submitted succesfully"})
+	c.JSON(http.StatusCreated,gin.H{"message":"Review submitted successfully"})
 }
 
 // GetReviews returns all application reviews

@@ -117,5 +117,38 @@ func UpdateProduct (c *gin.Context){
 }
 
 
+func DeleteProduct (c *gin.Context){
+	userID,_:=c.Get("user_id")
+	productID,_:=c.Get("product_id")
 
+	var product models.Product
+	if err:=config.DB.Where("id=?",productID).First(&product).Error;err!=nil{
+		c.JSON(http.StatusNotFound,gin.H{"error":"Product not found"})
+		return
+	}
 
+	var store models.Store
+	if err:=config.DB.Where("id=? AND user_id=?",product.StoreID,userID).First(&store);err!=nil{
+		c.JSON(http.StatusForbidden,gin.H{"error":"Unauthorized to delete this product"})
+		return
+	}
+	config.DB.Delete(&product)
+	c.JSON(http.StatusOK,gin.H{"message":"Product deleted successfully"})
+}
+
+func GetCatalog (c *gin.Context){
+	var products []models.Product
+	config.DB.Find(&products)
+	c.JSON(http.StatusOK,products)
+}
+
+func GetCatalogDetail(c *gin.Context){
+	productID,_:=strconv.Atoi(c.Param("id"))
+
+	var product models.Product
+	if err:=config.DB.First(&product,productID).Error;err!=nil{
+		c.JSON(http.StatusNotFound,gin.H{"error":"Product not found"})
+		return
+	}
+	c.JSON(http.StatusOK,product)
+}

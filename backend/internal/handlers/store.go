@@ -17,7 +17,7 @@ type ProductInput struct {
 	Name        string  `json:"name" binding:"required"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price" binding:"required,gt=0"`
-	Stock       int     `json:"stock" binding:"required,gte=0"`
+	Stock       *int     `json:"stock" binding:"required,gte=0"`
 }
 
 func CreateStore(c *gin.Context) {
@@ -59,11 +59,12 @@ func CreateProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	stockVal:=input.Stock
 	product := models.Product{
 		Name:        input.Name,
 		Description: input.Description,
 		Price:       input.Price,
-		Stock:       input.Stock,
+		Stock:       *stockVal,
 	}
 	if err := config.DB.Create(&product); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})
@@ -106,11 +107,11 @@ func UpdateProduct (c *gin.Context){
 		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
 		return
 	}
-
+	stockVal:=input.Stock
 	product.Name=input.Name
 	product.Description=input.Description
 	product.Price=input.Price
-	product.Stock=input.Stock
+	product.Stock=*stockVal
 
 	config.DB.Save(&product)
 	c.JSON(http.StatusOK,product)

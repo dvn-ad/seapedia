@@ -52,6 +52,7 @@ func main(){
 		seller.Use(middleware.RequireRole("Seller"))
 		{
 			seller.POST("/store",handlers.CreateStore)
+			seller.GET("/store",handlers.GetStore)
 			seller.GET("/products",handlers.GetSellerProduct)
 			seller.POST("/products",handlers.CreateProduct)
 			seller.PUT("/products/:id",handlers.UpdateProduct)

@@ -52,9 +52,28 @@ func CreateStore(c *gin.Context) {
 
 	if err := config.DB.Create(&store).Error; err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Store name already exists"})
+		return
 	}
 	c.JSON(http.StatusCreated, store)
 }
+
+// GetStore fetches store profile for the logged in seller
+// @Summary View store details
+// @Tags Store
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.Store
+// @Router /seller/store [get]
+func GetStore(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	var store models.Store
+	if err := config.DB.Where("user_id = ?", userID).First(&store).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		return
+	}
+	c.JSON(http.StatusOK, store)
+}
+
 
 // CreateProduct adds a new item to the seller's store
 // @Summary Add a new product
